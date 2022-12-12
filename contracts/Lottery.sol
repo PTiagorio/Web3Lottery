@@ -15,12 +15,15 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         uint ticketPrice;
         uint ticketsAmount;
         uint lotteryDays;
+        uint lotteryPot;
         uint startingTimestamp;
     }
 
     LotteryStruct public Lottery;
 
-    mapping (uint => address) public ticketToOwner;
+    uint feesToWithdraw;
+
+    mapping (uint => address payable) public ticketToOwner;
     address [] lotteryBuyers;
 
     address [] notRefoundedBuyers;
@@ -40,7 +43,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         require(
             (Lottery.startingTimestamp == 0) ||
             (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) > Lottery.lotteryDays),
-            "Another lottery is stil running"
+            "A lottery is stil running"
         );
         _;
     }
@@ -70,7 +73,10 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         VRFV2WrapperConsumerBase(linkAddress, wrapperAddress) 
     {}
 
-    function getRandomNumber() public returns (uint256 requestId) {
+    // ends the lottery by calling the winner
+    function endLottery() public isLotteryInactive returns (uint256 requestId) {
+        require(Lottery.lotteryPot > 0, "There is no pot to claim");
+        Lottery.lotteryPot = 0;
         return requestRandomness(
             callbackGasLimit,
             requestConfirmations,
@@ -78,15 +84,18 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         );
     }
 
+    // this function is called by the oracle and sends the founds of the lottery to the winner, less a 2% fee
     function fulfillRandomWords(uint256 /*requestId*/, uint256[] memory randomness) internal virtual override  {
         randomResult = randomness[0] % (Lottery.ticketsAmount - 1);
+        ticketToOwner[randomResult].transfer(Lottery.lotteryPot - (Lottery.lotteryPot * 2 / 100));
     }
 
     // ---------- HAPPY FLOW: ----------
 
     // starts a lottery
     function startLottery(uint _lotteryDays, uint _ticketPrice) external isOwner isLotteryInactive {
-        // ticket price in ether
+        require(Lottery.lotteryPot == 0);
+        // ticket price in Wei
         Lottery.ticketPrice = _ticketPrice;
         Lottery.ticketsAmount = 0;
         Lottery.lotteryDays = _lotteryDays;
@@ -96,17 +105,18 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     // buys a lottery ticket
     function buyTicket() payable external isLotteryActive returns(uint) {
         require(msg.value == Lottery.ticketPrice);
-        ticketToOwner[Lottery.ticketsAmount] = msg.sender;
+        ticketToOwner[Lottery.ticketsAmount] = payable(msg.sender);
         lotteryBuyers.push(msg.sender);
         Lottery.ticketsAmount++;
+        Lottery.lotteryPot += Lottery.ticketPrice;
+        console.log("Current pot: ", Lottery.lotteryPot);
         console.log("Created ticket number: ", Lottery.ticketsAmount - 1);
         console.log("Current amount of tickets: ", Lottery.ticketsAmount);
         return Lottery.ticketsAmount;
     }
 
-    // ends a lottery and sets the winner
-    function endLottery() external isOwner isLotteryInactive {
-        //setWinner ???
+    function withdrawFees() public isOwner {
+        payable(msg.sender).transfer(address(this).balance - Lottery.lotteryPot);
     }
     
     // ---------- EXCEPTION FLOWS: ----------
@@ -127,6 +137,8 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         }
         delete lotteryBuyers;
         Lottery.ticketsAmount = 0;
+        Lottery.lotteryDays = 0;
+        Lottery.lotteryPot = 0;
         Lottery.startingTimestamp = 0;
     }
 

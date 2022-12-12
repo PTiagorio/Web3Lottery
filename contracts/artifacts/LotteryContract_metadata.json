@@ -88,6 +88,11 @@
 					},
 					{
 						"internalType": "uint256",
+						"name": "lotteryPot",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
 						"name": "startingTimestamp",
 						"type": "uint256"
 					}
@@ -151,7 +156,13 @@
 			{
 				"inputs": [],
 				"name": "endLottery",
-				"outputs": [],
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "requestId",
+						"type": "uint256"
+					}
+				],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
@@ -166,19 +177,6 @@
 					}
 				],
 				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getRandomNumber",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "requestId",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -261,7 +259,7 @@
 				"name": "ticketToOwner",
 				"outputs": [
 					{
-						"internalType": "address",
+						"internalType": "address payable",
 						"name": "",
 						"type": "address"
 					}
@@ -278,6 +276,13 @@
 					}
 				],
 				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdrawFees",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -382,11 +387,11 @@
 			]
 		},
 		"contracts/Lottery.sol": {
-			"keccak256": "0x01ba1abe65f295dd5c2cf5dd6f618d17f72a627f9792248cdaee6ccb2e644954",
+			"keccak256": "0x519b878224f3b63fe794eb5861bc8923e9ce5a70f55ae3e03abdd59db8581327",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://1f59f1b5093e999e90f6671562e7b049e4be28baa1bf22815dbb54b9ed52e261",
-				"dweb:/ipfs/QmcwxdfdHuV8dV5dPwPD7AqRBcupic3vZe1DALjTNdawkz"
+				"bzz-raw://7b9cae702f43e67bf494833ba6d685325e35deffba9e74ce6ea87111069f1739",
+				"dweb:/ipfs/QmYWMdCktaf1CfSbwdXTzEVyuoLupaNRF2cJBahkAd1No1"
 			]
 		},
 		"contracts/Owner.sol": {

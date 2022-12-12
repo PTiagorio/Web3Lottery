@@ -86,7 +86,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
 
     // this function is called by the oracle and sends the founds of the lottery to the winner, less a 2% fee
     function fulfillRandomWords(uint256 /*requestId*/, uint256[] memory randomness) internal virtual override  {
-        randomResult = randomness[0] % (Lottery.ticketsAmount - 1);
+        randomResult = randomness[0] % (Lottery.ticketsAmount);
         ticketToOwner[randomResult].transfer(Lottery.lotteryPot - (Lottery.lotteryPot * 2 / 100));
     }
 

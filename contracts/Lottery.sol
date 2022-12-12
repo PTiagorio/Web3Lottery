@@ -11,7 +11,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
 
     // ---------- VARIABLES, MAPPINGS AND MODIFIERS: ----------
 
-    // TODO: since it's a sctructure, the uints should be set smaller than uint256 when possible
+    // TODO: variables should be reviewed to check if we could save gas using different declarations for them
     struct LotteryStruct {
         uint ticketPrice;
         uint ticketsAmount;

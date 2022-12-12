@@ -11,6 +11,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
 
     // ---------- VARIABLES, MAPPINGS AND MODIFIERS: ----------
 
+    // TODO: since it's a sctructure, the uints should be set smaller than uint256 when possible
     struct LotteryStruct {
         uint ticketPrice;
         uint ticketsAmount;
@@ -84,6 +85,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     }
 
     // this function is called by the oracle and sends the founds of the lottery to the winner, less a 2% fee
+    // this function is secured by the VRFV2WrapperConsumerBase contract, and as such can't be called by malicious actors
     function fulfillRandomWords(uint256 /*requestId*/, uint256[] memory randomness) internal virtual override  {
         randomResult = randomness[0] % (Lottery.ticketsAmount);
         ticketToOwner[randomResult].transfer(Lottery.lotteryPot - (Lottery.lotteryPot * 2 / 100));

@@ -32,7 +32,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     modifier isLotteryActive() {
         require(
             (Lottery.startingTimestamp != 0) &&
-            (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) <= Lottery.lotteryDays),
+            (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) < Lottery.lotteryDays),
             "No lottery running"
         );
         _;
@@ -42,7 +42,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     modifier isLotteryInactive() {
         require(
             (Lottery.startingTimestamp == 0) ||
-            (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) > Lottery.lotteryDays),
+            (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) >= Lottery.lotteryDays),
             "A lottery is stil running"
         );
         _;
@@ -76,7 +76,6 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     // ends the lottery by calling the winner
     function endLottery() public isLotteryInactive returns (uint256 requestId) {
         require(Lottery.lotteryPot > 0, "There is no pot to claim");
-        Lottery.lotteryPot = 0;
         return requestRandomness(
             callbackGasLimit,
             requestConfirmations,
@@ -88,6 +87,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     function fulfillRandomWords(uint256 /*requestId*/, uint256[] memory randomness) internal virtual override  {
         randomResult = randomness[0] % (Lottery.ticketsAmount);
         ticketToOwner[randomResult].transfer(Lottery.lotteryPot - (Lottery.lotteryPot * 2 / 100));
+        Lottery.lotteryPot = 0;
     }
 
     // ---------- HAPPY FLOW: ----------

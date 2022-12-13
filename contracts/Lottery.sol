@@ -62,16 +62,16 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
 
     // ---------- CHAINLINK FUNCTIONS AND VARIABLES: ----------
 
-    /* Depends on the number of requested values that you want sent to the
+    /* depends on the number of requested values that you want sent to the
        fulfillRandomWords() function. Test and adjust
        this limit based on the network that you select, the size of the request,
        and the processing of the callback request in the fulfillRandomWords()
        function. */
     uint32 callbackGasLimit = 100000;
-    // The default is 3, but you can set this higher.
+    // the default is 3, but you can set this higher.
     uint16 requestConfirmations = 3;
-    /* For this example, retrieve 2 random values in one request.
-       Cannot exceed VRFV2Wrapper.getConfig().maxNumWords. */
+    /* for this example, retrieve 2 random values in one request.
+       cannot exceed VRFV2Wrapper.getConfig().maxNumWords. */
     uint32 numWords = 1;
     // Address LINK - hardcoded for Goerli
     address linkAddress = 0x326C977E6efc84E512bB9C30f76E30c160eD06FB;

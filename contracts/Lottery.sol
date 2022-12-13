@@ -73,7 +73,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     /* for this example, retrieve 2 random values in one request.
        cannot exceed VRFV2Wrapper.getConfig().maxNumWords. */
     uint32 numWords = 1;
-    // Address LINK - hardcoded for Goerli
+    // address LINK - hardcoded for Goerli
     address linkAddress = 0x326C977E6efc84E512bB9C30f76E30c160eD06FB;
     // address WRAPPER - hardcoded for Goerli
     address wrapperAddress = 0x708701a1DfF4f478de54383E49a627eD4852C816;

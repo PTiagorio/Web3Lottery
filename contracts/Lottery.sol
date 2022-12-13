@@ -82,18 +82,21 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     function endLottery() public isLotteryInactive returns (uint256 requestId) {
         require(Lottery.potAmount > 0, "There is no pot to claim");
         require(!Lottery.InEndingProcess, "Lottery in ending process");
+        Lottery.InEndingProcess = true;
         requestId = requestRandomness(
             callbackGasLimit,
             requestConfirmations,
             numWords
         );
-        Lottery.InEndingProcess = true;
     }
 
     // this function is called by the oracle and sends the founds of the lottery to the winner, less a 2% fee
     // this function is secured by the VRFV2WrapperConsumerBase contract, and as such can't be called by malicious actors
     function fulfillRandomWords(uint256 /*requestId*/, uint256[] memory randomness) internal virtual override  {
         randomResult = randomness[0] % (Lottery.ticketsAmount);
+        // TODO: transfer can revert, and "fulfillRandomWords" should never revert, accordingly to the chainlink documentation
+        // (source: https://docs.chain.link/vrf/v2/security/#fulfillrandomwords-must-not-revert)
+        // to fix this, we either should make a synchronous call of this code or run an Automation Node that make this call in another function
         ticketToOwner[randomResult].transfer(Lottery.potAmount - (Lottery.potAmount * 2 / 100));
         Lottery.potAmount = 0;
         Lottery.InEndingProcess = false;

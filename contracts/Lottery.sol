@@ -62,16 +62,16 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
 
     // ---------- CHAINLINK FUNCTIONS AND VARIABLES: ----------
 
-    // Depends on the number of requested values that you want sent to the
-    // fulfillRandomWords() function. Test and adjust
-    // this limit based on the network that you select, the size of the request,
-    // and the processing of the callback request in the fulfillRandomWords()
-    // function.
+    /* Depends on the number of requested values that you want sent to the
+       fulfillRandomWords() function. Test and adjust
+       this limit based on the network that you select, the size of the request,
+       and the processing of the callback request in the fulfillRandomWords()
+       function. */
     uint32 callbackGasLimit = 100000;
     // The default is 3, but you can set this higher.
     uint16 requestConfirmations = 3;
-    // For this example, retrieve 2 random values in one request.
-    // Cannot exceed VRFV2Wrapper.getConfig().maxNumWords.
+    /* For this example, retrieve 2 random values in one request.
+       Cannot exceed VRFV2Wrapper.getConfig().maxNumWords. */
     uint32 numWords = 1;
     // Address LINK - hardcoded for Goerli
     address linkAddress = 0x326C977E6efc84E512bB9C30f76E30c160eD06FB;
@@ -85,10 +85,10 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         VRFV2WrapperConsumerBase(linkAddress, wrapperAddress) 
     {}
 
-    // ends the lottery by calling the winner
-    // this function calls the oracle that instead calls the "fulfillRandomWords"
-    // since the call of the other function takes some time, we need to protect the function of being called multiple times,
-    // hence the "Lottery.InEndingProcess" variable
+    /* ends the lottery by calling the winner
+       this function calls the oracle that instead calls the "fulfillRandomWords"
+       since the call of the other function takes some time, we need to protect the function of being called multiple times,
+       hence the "Lottery.InEndingProcess" variable */
     function endLottery() public isLotteryInactive returns (uint256 requestId) {
         require(Lottery.potAmount > 0, "There is no pot to claim");
         require(!Lottery.InEndingProcess, "Lottery in ending process");
@@ -101,15 +101,15 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         emit StartedEndLotteryProcessEvent(msg.sender, requestId);
     }
 
-    // this function is called by the oracle and sends the founds of the lottery to the winner, less a 2% fee
-    // this function is secured by the VRFV2WrapperConsumerBase contract, and as such can't be called by malicious actors
+    /* this function is called by the oracle and sends the founds of the lottery to the winner, less a 2% fee
+       it is secured by the VRFV2WrapperConsumerBase contract, and as such can't be called by malicious actors */
     function fulfillRandomWords(uint256 /*requestId*/, uint256[] memory randomness) internal virtual override  {
         randomResult = randomness[0] % (Lottery.ticketsAmount);
         uint amountToTransfer = Lottery.potAmount - (Lottery.potAmount * 2 / 100);
-        // TODO: "transfer" function can revert, and "fulfillRandomWords" should never revert, accordingly to the chainlink documentation
-        // (source: https://docs.chain.link/vrf/v2/security/#fulfillrandomwords-must-not-revert)
-        // to fix this, we either should make a synchronous call of this code or run an Automation Node that make this call in another function
-        // for now, it's like this due to convenience when using the contract and to not use a chainlink subscription (for the Automation Node)
+        /* TODO: "transfer" function can revert, and "fulfillRandomWords" should never revert, accordingly to the chainlink documentation
+           (source: https://docs.chain.link/vrf/v2/security/#fulfillrandomwords-must-not-revert)
+           to fix this, we either should make a synchronous call of this code or run an Automation Node that make this call in another function
+           for now, it's like this due to convenience when using the contract and to not use a chainlink subscription (for the Automation Node) */
         ticketToOwner[randomResult].transfer(amountToTransfer);
         Lottery.potAmount = 0;
         Lottery.InEndingProcess = false;

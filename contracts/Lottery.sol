@@ -82,12 +82,12 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     function endLottery() public isLotteryInactive returns (uint256 requestId) {
         require(Lottery.potAmount > 0, "There is no pot to claim");
         require(!Lottery.InEndingProcess, "Lottery in ending process");
-        Lottery.InEndingProcess = true;
-        return requestRandomness(
+        requestId = requestRandomness(
             callbackGasLimit,
             requestConfirmations,
             numWords
         );
+        Lottery.InEndingProcess = true;
     }
 
     // this function is called by the oracle and sends the founds of the lottery to the winner, less a 2% fee
@@ -116,12 +116,12 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         require(msg.value == Lottery.ticketPrice);
         ticketToOwner[Lottery.ticketsAmount] = payable(msg.sender);
         lotteryBuyers.push(msg.sender);
+        tickedId = Lottery.ticketsAmount;
         Lottery.ticketsAmount++;
         Lottery.potAmount += Lottery.ticketPrice;
         console.log("Current pot: ", Lottery.potAmount);
         console.log("Created ticket number: ", Lottery.ticketsAmount - 1);
         console.log("Current amount of tickets: ", Lottery.ticketsAmount);
-        return Lottery.ticketsAmount - 1;
     }
 
     function withdrawFees() public isOwner {

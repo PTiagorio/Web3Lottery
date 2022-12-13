@@ -392,11 +392,11 @@
 			]
 		},
 		"contracts/Lottery.sol": {
-			"keccak256": "0xdef0adc2d359312d880ca5c1ac552bc9ef86081961a0487a919497148ac9c1f7",
+			"keccak256": "0xec536bab05aae97fe5d8411b710e76c6e444177b6419414ec0537fc0beb4f832",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://86650400d90e74d77568c73cabc7851626eb9e3dffd69a4bcd75aecc85e1e3bd",
-				"dweb:/ipfs/QmNi877Psfw3Nvk1FdacQmXUExpMyC8tyhsh2kFQMT7taF"
+				"bzz-raw://47ee12f59699ad0a35ac66da892d0ea4180e94b75b2f318e4d280f3b9e14c28b",
+				"dweb:/ipfs/QmUNkq4JaApwwVqBDBp6BfMWtPjBcCLZ3Nzk8ZX7nHY4Lr"
 			]
 		},
 		"contracts/Owner.sol": {

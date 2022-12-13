@@ -14,6 +14,57 @@
 				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "winner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amountTransfered",
+						"type": "uint256"
+					}
+				],
+				"name": "EndedEndLotteryProcessEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "feesWithdrew",
+						"type": "uint256"
+					}
+				],
+				"name": "FeesWithdrewEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "buyersRefunded",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "buyersNotRefunded",
+						"type": "uint256"
+					}
+				],
+				"name": "LotteryCanceledEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
 						"indexed": true,
 						"internalType": "address",
 						"name": "oldOwner",
@@ -65,6 +116,139 @@
 					}
 				],
 				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "callerAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					}
+				],
+				"name": "StartedEndLotteryProcessEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "ticketPrice",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "ticketsAmount",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amountOfDays",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "potAmount",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "startingTimestamp",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "InEndingProcess",
+								"type": "bool"
+							}
+						],
+						"indexed": false,
+						"internalType": "struct LotteryContract.LotteryStruct",
+						"name": "lotteryCreated",
+						"type": "tuple"
+					}
+				],
+				"name": "StartedLotteryEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "successfulBuyersRefunded",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "UnsuccessfulBuyersRefunded",
+						"type": "uint256"
+					}
+				],
+				"name": "SubmissionOfFoundsRetriedEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "buyerAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "ticketNumber",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newAmountOfTickets",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newPotAmount",
+						"type": "uint256"
+					}
+				],
+				"name": "TicketBoughtEvent",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "oldPrice",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newPrice",
+						"type": "uint256"
+					}
+				],
+				"name": "TicketPriceChangedEvent",
 				"type": "event"
 			},
 			{
@@ -392,11 +576,11 @@
 			]
 		},
 		"contracts/Lottery.sol": {
-			"keccak256": "0x3d846ecbfceccff9a0528cf81adb410e7e992e049377095fb2808a0429e40dcf",
+			"keccak256": "0xef4bc903889594be2dc2595a867880d66013376f3ef8e1f95ae9adb79fc0fb50",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://93f9d4f4ffabd24614a7d1312193a77ff64ca791c9490edb68e9709dc91efcf2",
-				"dweb:/ipfs/QmemtVSfLVdqbrbZcDpCHyMc2NK67d4hrLNExf7xBgMPyJ"
+				"bzz-raw://f9f859bf698e5536498068536d2184f4af5dde9b7490b701f2f4e1d82c95cb71",
+				"dweb:/ipfs/QmZcK2g1hn9wxqzuvoqAQc4JRvhNd8FpMpqDQuoRRD6kDi"
 			]
 		},
 		"contracts/Owner.sol": {

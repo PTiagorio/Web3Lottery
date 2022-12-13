@@ -28,7 +28,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     mapping (uint => address payable) public ticketToOwner;
     address [] lotteryBuyers;
 
-    address [] notRefoundedBuyers;
+    address [] notRefundedBuyers;
 
     // checks if there is a lottery still active by comparing timestamps
     modifier isLotteryActive() {
@@ -49,6 +49,16 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         );
         _;
     }
+
+    // ---------- EVENTS DECLARATION: ----------
+    event StartedEndLotteryProcessEvent(address callerAddress, uint id);
+    event EndedEndLotteryProcessEvent(address winner, uint amountTransfered);
+    event StartedLotteryEvent(LotteryStruct lotteryCreated);
+    event TicketBoughtEvent(address buyerAddress, uint ticketNumber, uint newAmountOfTickets, uint newPotAmount);
+    event FeesWithdrewEvent(uint feesWithdrew);
+    event TicketPriceChangedEvent(uint oldPrice, uint newPrice);
+    event LotteryCanceledEvent(uint buyersRefunded, uint buyersNotRefunded);
+    event SubmissionOfFoundsRetriedEvent(uint successfulBuyersRefunded, uint UnsuccessfulBuyersRefunded);
 
     // ---------- CHAINLINK FUNCTIONS AND VARIABLES: ----------
 
@@ -88,19 +98,22 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
             requestConfirmations,
             numWords
         );
+        emit StartedEndLotteryProcessEvent(msg.sender, requestId);
     }
 
     // this function is called by the oracle and sends the founds of the lottery to the winner, less a 2% fee
     // this function is secured by the VRFV2WrapperConsumerBase contract, and as such can't be called by malicious actors
     function fulfillRandomWords(uint256 /*requestId*/, uint256[] memory randomness) internal virtual override  {
         randomResult = randomness[0] % (Lottery.ticketsAmount);
+        uint amountToTransfer = Lottery.potAmount - (Lottery.potAmount * 2 / 100);
         // TODO: transfer can revert, and "fulfillRandomWords" should never revert, accordingly to the chainlink documentation
         // (source: https://docs.chain.link/vrf/v2/security/#fulfillrandomwords-must-not-revert)
         // to fix this, we either should make a synchronous call of this code or run an Automation Node that make this call in another function
         // for now, it's like this due to convenience when using the contract and to not use a chainlink subscription (for the Automation Node)
-        ticketToOwner[randomResult].transfer(Lottery.potAmount - (Lottery.potAmount * 2 / 100));
+        ticketToOwner[randomResult].transfer(amountToTransfer);
         Lottery.potAmount = 0;
         Lottery.InEndingProcess = false;
+        emit EndedEndLotteryProcessEvent(ticketToOwner[randomResult], amountToTransfer);
     }
 
     // ---------- HAPPY FLOW: ----------
@@ -113,6 +126,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         Lottery.ticketsAmount = 0;
         Lottery.amountOfDays = _amountOfDays;
         Lottery.startingTimestamp = block.timestamp;
+        emit StartedLotteryEvent(Lottery);
     }
 
     // buys a lottery ticket
@@ -126,25 +140,31 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         console.log("Current pot: ", Lottery.potAmount);
         console.log("Created ticket number: ", Lottery.ticketsAmount - 1);
         console.log("Current amount of tickets: ", Lottery.ticketsAmount);
+        emit TicketBoughtEvent(msg.sender, tickedId, Lottery.ticketsAmount, Lottery.potAmount);
     }
 
     function withdrawFees() public isOwner {
-        payable(msg.sender).transfer(address(this).balance - Lottery.potAmount);
+        uint feesToWithdrew = address(this).balance - Lottery.potAmount;
+        payable(msg.sender).transfer(feesToWithdrew);
+        emit FeesWithdrewEvent(feesToWithdrew);
     }
     
     // ---------- EXCEPTION FLOWS: ----------
 
     // changes the overall price of each ticket, only doable by the Owner
     function changeTicketPrice(uint _ticketPrice) external isOwner isLotteryActive {
+        uint oldTicketPrice = Lottery.ticketPrice;
         Lottery.ticketPrice = _ticketPrice;
+        emit TicketPriceChangedEvent(oldTicketPrice, Lottery.ticketPrice);
     }
 
     // cancells a lottery and return the (funds - fees) to the adresses that sent them
     function cancelLottery() external isOwner isLotteryActive {
-        for (uint i=0; i<lotteryBuyers.length; i++) {
+        uint oldLotteryBuyersLenght = lotteryBuyers.length;
+        for (uint i=0; i<oldLotteryBuyersLenght; i++) {
             (bool sent, ) = lotteryBuyers[i].call{value: Lottery.ticketPrice}("");
             if(!sent) {
-                notRefoundedBuyers.push(lotteryBuyers[i]);
+                notRefundedBuyers.push(lotteryBuyers[i]);
             }
             delete ticketToOwner[Lottery.ticketsAmount - 1 - i];
         }
@@ -153,19 +173,22 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         Lottery.amountOfDays = 0;
         Lottery.potAmount = 0;
         Lottery.startingTimestamp = 0;
+        emit LotteryCanceledEvent(oldLotteryBuyersLenght, notRefundedBuyers.length);
     }
 
     // if anything went wrong sending some founds in the "cancelLottery" function, we can retry the sending
     function retrySubmissionOfFounds() external isOwner {
-        address [] memory tempNotRefoundedBuyers;
+        address [] memory tempNotRefundedBuyers;
+        uint oldNotRefundedBuyersLenght = notRefundedBuyers.length;
         uint j=0;
-        for (uint i=0; i<notRefoundedBuyers.length; i++) {
-            (bool sent, ) = notRefoundedBuyers[i].call{value: Lottery.ticketPrice}("");
+        for (uint i=0; i<oldNotRefundedBuyersLenght; i++) {
+            (bool sent, ) = notRefundedBuyers[i].call{value: Lottery.ticketPrice}("");
             if(!sent) {
-                tempNotRefoundedBuyers[j] = notRefoundedBuyers[i];
+                tempNotRefundedBuyers[j] = notRefundedBuyers[i];
                 j++;
             }
         }
-        notRefoundedBuyers = tempNotRefoundedBuyers;
+        notRefundedBuyers = tempNotRefundedBuyers;
+        emit SubmissionOfFoundsRetriedEvent(oldNotRefundedBuyersLenght, notRefundedBuyers.length);
     }
 }

@@ -112,7 +112,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     }
 
     // buys a lottery ticket
-    function buyTicket() payable external isLotteryActive returns(uint) {
+    function buyTicket() payable external isLotteryActive returns(uint tickedId) {
         require(msg.value == Lottery.ticketPrice);
         ticketToOwner[Lottery.ticketsAmount] = payable(msg.sender);
         lotteryBuyers.push(msg.sender);
@@ -121,7 +121,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         console.log("Current pot: ", Lottery.potAmount);
         console.log("Created ticket number: ", Lottery.ticketsAmount - 1);
         console.log("Current amount of tickets: ", Lottery.ticketsAmount);
-        return Lottery.ticketsAmount;
+        return Lottery.ticketsAmount - 1;
     }
 
     function withdrawFees() public isOwner {

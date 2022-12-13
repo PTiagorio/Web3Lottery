@@ -118,7 +118,7 @@
 				"outputs": [
 					{
 						"internalType": "uint256",
-						"name": "",
+						"name": "tickedId",
 						"type": "uint256"
 					}
 				],
@@ -392,11 +392,11 @@
 			]
 		},
 		"contracts/Lottery.sol": {
-			"keccak256": "0x853d72801173049d59a603584d9d0ec2070e39a7e0b05e2bc95b91c286f4b112",
+			"keccak256": "0xdef0adc2d359312d880ca5c1ac552bc9ef86081961a0487a919497148ac9c1f7",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://40523e88aae3570cebdbeb10dcbd55eaaac3eb5371d61c846675716d55c26957",
-				"dweb:/ipfs/Qmbba3SPQrk3xf3huS2CfbRFcKEuHt56MJCHVPprtd4cY1"
+				"bzz-raw://86650400d90e74d77568c73cabc7851626eb9e3dffd69a4bcd75aecc85e1e3bd",
+				"dweb:/ipfs/QmNi877Psfw3Nvk1FdacQmXUExpMyC8tyhsh2kFQMT7taF"
 			]
 		},
 		"contracts/Owner.sol": {

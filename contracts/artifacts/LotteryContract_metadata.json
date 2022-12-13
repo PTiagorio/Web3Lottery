@@ -95,6 +95,11 @@
 						"internalType": "uint256",
 						"name": "startingTimestamp",
 						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "InEndingProcess",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
@@ -387,11 +392,11 @@
 			]
 		},
 		"contracts/Lottery.sol": {
-			"keccak256": "0x6c14efceee7d8e2c7f1949545ffd14bffa6c30a9e746d3decd47dc1672e1c02b",
+			"keccak256": "0x31e8bb8a45da13d5bed4fa317b4b9d105e042609c95738134da455f7426eba9d",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://e6465a76965c06e176f08761c88955cba45d95202fb772518dd0404eb41bb556",
-				"dweb:/ipfs/QmYQZMNsqh76BffBY3HzxdMUBZpzKiYVCfAep2uUp7A61Y"
+				"bzz-raw://9c447bc3188e0875d6f0f5b665c769eb6f89f8cadd4abd50a7e65f9c2f75f152",
+				"dweb:/ipfs/QmchkZPHeymARw94RSC7mwiRscAop9CXXMyAMUam7TjjFy"
 			]
 		},
 		"contracts/Owner.sol": {

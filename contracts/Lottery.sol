@@ -18,6 +18,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         uint lotteryDays;
         uint lotteryPot;
         uint startingTimestamp;
+        bool InEndingProcess;
     }
 
     LotteryStruct public Lottery;
@@ -75,8 +76,13 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     {}
 
     // ends the lottery by calling the winner
+    // this function calls the oracle that instead calls the "fulfillRandomWords"
+    // since the call of the other function takes some time, we need to protect the function of being called multiple times,
+    // hence the "Lottery.InEndingProcess" variable
     function endLottery() public isLotteryInactive returns (uint256 requestId) {
         require(Lottery.lotteryPot > 0, "There is no pot to claim");
+        require(!Lottery.InEndingProcess, "Lottery in ending process");
+        Lottery.InEndingProcess = true;
         return requestRandomness(
             callbackGasLimit,
             requestConfirmations,
@@ -90,13 +96,14 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         randomResult = randomness[0] % (Lottery.ticketsAmount);
         ticketToOwner[randomResult].transfer(Lottery.lotteryPot - (Lottery.lotteryPot * 2 / 100));
         Lottery.lotteryPot = 0;
+        Lottery.InEndingProcess = false;
     }
 
     // ---------- HAPPY FLOW: ----------
 
     // starts a lottery
     function startLottery(uint _lotteryDays, uint _ticketPrice) external isOwner isLotteryInactive {
-        require(Lottery.lotteryPot == 0);
+        require(Lottery.lotteryPot == 0, "There is already one lottery running with a pot");
         // ticket price in Wei
         Lottery.ticketPrice = _ticketPrice;
         Lottery.ticketsAmount = 0;
@@ -128,7 +135,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         Lottery.ticketPrice = _ticketPrice;
     }
 
-    // cancells a lottery and return part of the funds
+    // cancells a lottery and return the (funds - fees) to the adresses that sent them
     function cancelLottery() external isOwner isLotteryActive {
         for (uint i=0; i<lotteryBuyers.length; i++) {
             (bool sent, ) = lotteryBuyers[i].call{value: Lottery.ticketPrice}("");
@@ -144,6 +151,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         Lottery.startingTimestamp = 0;
     }
 
+    // if anything went wrong sending some founds in the "cancelLottery" function, we can retry the sending
     function retrySubmissionOfFounds() external isOwner {
         address [] memory tempNotRefoundedBuyers;
         uint j=0;

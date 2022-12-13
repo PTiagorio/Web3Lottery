@@ -97,6 +97,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         // TODO: transfer can revert, and "fulfillRandomWords" should never revert, accordingly to the chainlink documentation
         // (source: https://docs.chain.link/vrf/v2/security/#fulfillrandomwords-must-not-revert)
         // to fix this, we either should make a synchronous call of this code or run an Automation Node that make this call in another function
+        // for now, it's like this due to convenience when using the contract and to not use a chainlink subscription (for the Automation Node)
         ticketToOwner[randomResult].transfer(Lottery.potAmount - (Lottery.potAmount * 2 / 100));
         Lottery.potAmount = 0;
         Lottery.InEndingProcess = false;

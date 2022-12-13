@@ -83,12 +83,12 @@
 					},
 					{
 						"internalType": "uint256",
-						"name": "lotteryDays",
+						"name": "amountOfDays",
 						"type": "uint256"
 					},
 					{
 						"internalType": "uint256",
-						"name": "lotteryPot",
+						"name": "potAmount",
 						"type": "uint256"
 					},
 					{
@@ -239,7 +239,7 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "_lotteryDays",
+						"name": "_amountOfDays",
 						"type": "uint256"
 					},
 					{
@@ -392,11 +392,11 @@
 			]
 		},
 		"contracts/Lottery.sol": {
-			"keccak256": "0x31e8bb8a45da13d5bed4fa317b4b9d105e042609c95738134da455f7426eba9d",
+			"keccak256": "0x853d72801173049d59a603584d9d0ec2070e39a7e0b05e2bc95b91c286f4b112",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://9c447bc3188e0875d6f0f5b665c769eb6f89f8cadd4abd50a7e65f9c2f75f152",
-				"dweb:/ipfs/QmchkZPHeymARw94RSC7mwiRscAop9CXXMyAMUam7TjjFy"
+				"bzz-raw://40523e88aae3570cebdbeb10dcbd55eaaac3eb5371d61c846675716d55c26957",
+				"dweb:/ipfs/Qmbba3SPQrk3xf3huS2CfbRFcKEuHt56MJCHVPprtd4cY1"
 			]
 		},
 		"contracts/Owner.sol": {

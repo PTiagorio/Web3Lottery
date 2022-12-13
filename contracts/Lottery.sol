@@ -15,8 +15,8 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     struct LotteryStruct {
         uint ticketPrice;
         uint ticketsAmount;
-        uint lotteryDays;
-        uint lotteryPot;
+        uint amountOfDays;
+        uint potAmount;
         uint startingTimestamp;
         bool InEndingProcess;
     }
@@ -34,7 +34,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     modifier isLotteryActive() {
         require(
             (Lottery.startingTimestamp != 0) &&
-            (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) < Lottery.lotteryDays),
+            (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) < Lottery.amountOfDays),
             "No lottery running"
         );
         _;
@@ -44,7 +44,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     modifier isLotteryInactive() {
         require(
             (Lottery.startingTimestamp == 0) ||
-            (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) >= Lottery.lotteryDays),
+            (((block.timestamp - Lottery.startingTimestamp) / 60 / 60 / 24) >= Lottery.amountOfDays),
             "A lottery is stil running"
         );
         _;
@@ -80,7 +80,7 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     // since the call of the other function takes some time, we need to protect the function of being called multiple times,
     // hence the "Lottery.InEndingProcess" variable
     function endLottery() public isLotteryInactive returns (uint256 requestId) {
-        require(Lottery.lotteryPot > 0, "There is no pot to claim");
+        require(Lottery.potAmount > 0, "There is no pot to claim");
         require(!Lottery.InEndingProcess, "Lottery in ending process");
         Lottery.InEndingProcess = true;
         return requestRandomness(
@@ -94,20 +94,20 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
     // this function is secured by the VRFV2WrapperConsumerBase contract, and as such can't be called by malicious actors
     function fulfillRandomWords(uint256 /*requestId*/, uint256[] memory randomness) internal virtual override  {
         randomResult = randomness[0] % (Lottery.ticketsAmount);
-        ticketToOwner[randomResult].transfer(Lottery.lotteryPot - (Lottery.lotteryPot * 2 / 100));
-        Lottery.lotteryPot = 0;
+        ticketToOwner[randomResult].transfer(Lottery.potAmount - (Lottery.potAmount * 2 / 100));
+        Lottery.potAmount = 0;
         Lottery.InEndingProcess = false;
     }
 
     // ---------- HAPPY FLOW: ----------
 
     // starts a lottery
-    function startLottery(uint _lotteryDays, uint _ticketPrice) external isOwner isLotteryInactive {
-        require(Lottery.lotteryPot == 0, "There is already one lottery running with a pot");
+    function startLottery(uint _amountOfDays, uint _ticketPrice) external isOwner isLotteryInactive {
+        require(Lottery.potAmount == 0, "There is already one lottery running with a pot");
         // ticket price in Wei
         Lottery.ticketPrice = _ticketPrice;
         Lottery.ticketsAmount = 0;
-        Lottery.lotteryDays = _lotteryDays;
+        Lottery.amountOfDays = _amountOfDays;
         Lottery.startingTimestamp = block.timestamp;
     }
 
@@ -117,15 +117,15 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         ticketToOwner[Lottery.ticketsAmount] = payable(msg.sender);
         lotteryBuyers.push(msg.sender);
         Lottery.ticketsAmount++;
-        Lottery.lotteryPot += Lottery.ticketPrice;
-        console.log("Current pot: ", Lottery.lotteryPot);
+        Lottery.potAmount += Lottery.ticketPrice;
+        console.log("Current pot: ", Lottery.potAmount);
         console.log("Created ticket number: ", Lottery.ticketsAmount - 1);
         console.log("Current amount of tickets: ", Lottery.ticketsAmount);
         return Lottery.ticketsAmount;
     }
 
     function withdrawFees() public isOwner {
-        payable(msg.sender).transfer(address(this).balance - Lottery.lotteryPot);
+        payable(msg.sender).transfer(address(this).balance - Lottery.potAmount);
     }
     
     // ---------- EXCEPTION FLOWS: ----------
@@ -146,8 +146,8 @@ contract LotteryContract is Owner, VRFV2WrapperConsumerBase, ConfirmedOwner {
         }
         delete lotteryBuyers;
         Lottery.ticketsAmount = 0;
-        Lottery.lotteryDays = 0;
-        Lottery.lotteryPot = 0;
+        Lottery.amountOfDays = 0;
+        Lottery.potAmount = 0;
         Lottery.startingTimestamp = 0;
     }
 

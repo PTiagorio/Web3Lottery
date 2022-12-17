@@ -1,11 +1,11 @@
 import React from "react";
+import moment from 'moment';
 import { useEffect, useState } from "react";
 import {
   lotteryContract,
   connectWallet,
-  updateMessage,
-  loadCurrentMessage,
   getCurrentWalletConnected,
+  loadCurrentLottery,
 } from "./util/interact.js";
 
 import lottoLogo from "./lottoLogo.svg";
@@ -19,7 +19,14 @@ const LotteryScreen = () => {
   const [message, setMessage] = useState("No connection to the network."); //default message
   const [newMessage, setNewMessage] = useState("");
 
-  const [hide, setHide] = useState(true);
+  const [currentPot, setCurrentPot] = useState("");
+  const [ticketsAmount, setTicketsAmount] = useState("");
+  const [initialDate, setInitialDate] = useState("");
+  const [amountOfDays, setAmountOfDays] = useState("");
+  const [ticketsPrice, setTicketsPrice] = useState("");
+
+  const [contractOwner, setContractOwner] = useState("");
+  const [dontHide, setDontHide] = useState(true);
 
   const navigate = useNavigate();
 
@@ -27,24 +34,108 @@ const LotteryScreen = () => {
     navigate('/adminScreen', {replace: true});
   };
 
+  async function fetchLottery() {
+    const lottery = await loadCurrentLottery();
+
+    var formatted;
+    if(lottery.startingTimestamp == 0) {
+      formatted = "None";
+    }
+    else {
+      var t = new Date(lottery.startingTimestamp);
+      formatted = moment(t).format("DD/MM/yyyy hh:mm:ss");
+    }
+
+    setCurrentPot(lottery.potAmount == 0 ? "None" : lottery.potAmount);
+    setTicketsAmount(lottery.ticketsAmount == 0 ? "None" : lottery.ticketsAmount);
+    setInitialDate(formatted);
+    setAmountOfDays(lottery.amountOfDays == 0 ? "None" : lottery.amountOfDays);
+    setTicketsPrice(lottery.ticketPrice == 0 ? "None" : lottery.ticketPrice);
+  }
+
   //called only once
   useEffect(() => {
-    
+    fetchLottery();
+    addSmartContractListener();
+  
+    async function fetchWallet() {
+      const {address, status} = await getCurrentWalletConnected();
+      setWallet(address)
+      setStatus(status); 
+    }
+    fetchWallet();
+    addWalletListener(); 
   }, []);
 
-  function addSmartContractListener() { //TODO: implement
-    
+  function addSmartContractListener() {
+    lotteryContract.events.StartedEndLotteryProcessEvent({}, (error, data) => {
+      fetchLottery();
+    });
+
+    lotteryContract.events.EndedEndLotteryProcessEvent({}, (error, data) => {
+      fetchLottery();
+    });
+
+    lotteryContract.events.StartedLotteryEvent({}, (error, data) => {
+      fetchLottery();
+    });
+
+    lotteryContract.events.TicketBoughtEvent({}, (error, data) => {
+      fetchLottery();
+    });
+
+    lotteryContract.events.FeesWithdrewEvent({}, (error, data) => {
+      fetchLottery();
+    });
+
+    lotteryContract.events.TicketPriceChangedEvent({}, (error, data) => {
+      fetchLottery();
+    });
+
+    lotteryContract.events.LotteryCanceledEvent({}, (error, data) => {
+      fetchLottery();
+    });
+
+    lotteryContract.events.SubmissionOfFoundsRetriedEvent({}, (error, data) => {
+      fetchLottery();
+    });
   }
 
-  function addWalletListener() { //TODO: implement
-    
+  function addWalletListener() {
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        if (accounts.length > 0) {
+          setWallet(accounts[0]);
+        } else {
+          setWallet("");
+          setStatus("🦊 Connect to Metamask using the top right button.");
+        }
+      });
+    } else {
+      setStatus(
+        <p>
+          {" "}
+          🦊{" "}
+          <a target="_blank" href={`https://metamask.io/download`}>
+            You must install Metamask, a virtual Ethereum wallet, in your
+            browser.
+          </a>
+        </p>
+      );
+    }
   }
 
-  const connectWalletPressed = async () => { //TODO: implement
+  const connectWalletPressed = async () => {
+    const walletResponse = await connectWallet();
+    setStatus(walletResponse.status);
+    setWallet(walletResponse.address);
+  };
+
+  const onBuyTicketPressed = async () => { //TODO: implement
     
   };
 
-  const onUpdatePressed = async () => { //TODO: implement
+  const onBuyEndLotteryPressed = async () => { //TODO: implement
     
   };
 
@@ -65,31 +156,31 @@ const LotteryScreen = () => {
         )}
       </button>
 
-      <h2 style={{ paddingTop: "25px" }}>Current Pot: <b>{message}</b></h2>
+      <p id="status">{status}</p>
+
+      <h2 style={{ paddingTop: "25px" }}>Current Pot: <b>{currentPot}</b></h2>
 
       <div style={{ paddingTop: "18px" }}>
         <h3 style={{ display: "inline" }}>Tickets amount: </h3>
-        <p style={{ display: "inline" }}>{message}</p>
+        <p style={{ display: "inline" }}>{ticketsAmount}</p>
       </div>
 
       <div style={{ paddingTop: "18px" }}>
         <h3 style={{ display: "inline" }}>Initial date: </h3>
-        <p style={{ display: "inline" }}>{message}</p>
+        <p style={{ display: "inline" }}>{initialDate}</p>
       </div>
 
       <div style={{ paddingTop: "18px" }}>
-        <h3 style={{ display: "inline" }}>Ending date: </h3>
-        <p style={{ display: "inline" }}>{message}</p>
+        <h3 style={{ display: "inline" }}>Amount of Days available: </h3>
+        <p style={{ display: "inline" }}>{amountOfDays}</p>
       </div>
 
       <div style={{ paddingTop: "18px", marginBottom: "35px" }}>
         <h3 style={{ display: "inline" }}>Price: </h3>
-        <p style={{ display: "inline" }}>{message}</p>
+        <p style={{ display: "inline" }}>{ticketsPrice}</p>
       </div>
 
       <div>
-        <p id="status">{status}</p>
-
         <button id="buyTicket" onClick={onUpdatePressed}>
           Buy Ticket
         </button>
@@ -100,7 +191,7 @@ const LotteryScreen = () => {
       </div>
 
       <div className="middleDiv">
-        <button className={ hide?"itemInTheMiddle":"hideButton itemInTheMiddle" } id="adminSettings" onClick={navigateToAdminScreen}>
+        <button className={ dontHide?"itemInTheMiddle":"hideButton itemInTheMiddle" } id="adminSettings" onClick={navigateToAdminScreen}>
           Admin Settings
         </button>
       </div>

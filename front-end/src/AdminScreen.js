@@ -6,7 +6,7 @@ import {
   lotteryContract,
   connectWallet,
   updateMessage,
-  loadCurrentMessage,
+  loadCurrentLottery,
   getCurrentWalletConnected,
 } from "./util/interact.js";
 
@@ -24,7 +24,15 @@ const AdminScreen = () => {
 
   //called only once
   useEffect(() => {
-    
+    addSmartContractListener();
+  
+    async function fetchWallet() {
+      const {address, status} = await getCurrentWalletConnected();
+      setWallet(address)
+      setStatus(status); 
+    }
+    fetchWallet();
+    addWalletListener(); 
   }, []);
 
   const navigate = useNavigate();
@@ -33,12 +41,33 @@ const AdminScreen = () => {
     
   }
 
-  function addWalletListener() { //TODO: implement
-    
+  function addWalletListener() {
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        if (accounts.length > 0) {
+          setWallet(accounts[0]);
+        } else {
+          setWallet("");
+        }
+      });
+    } else {
+      setStatus(
+        <p>
+          {" "}
+          🦊{" "}
+          <a target="_blank" href={`https://metamask.io/download`}>
+            You must install Metamask, a virtual Ethereum wallet, in your
+            browser.
+          </a>
+        </p>
+      );
+    }
   }
 
-  const connectWalletPressed = async () => { //TODO: implement
-    
+  const connectWalletPressed = async () => {
+    const walletResponse = await connectWallet();
+    setStatus(walletResponse.status);
+    setWallet(walletResponse.address);
   };
 
   const onUpdatePressed = async () => { //TODO: implement

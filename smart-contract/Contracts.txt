@@ -1,0 +1,5 @@
+Contract deployed to address: 0x489430732e5993Faa219D7e0b9b3500Acca1F6Ba
+
+
+Web3Grad addresses in Goerli network:
+1 - 0x928D2Dc6E18b72EcCFfa3Eb48d56c8D66C86db74

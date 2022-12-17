@@ -91,3 +91,74 @@ export const getCurrentWalletConnected = async () => {
         };
     }
 };
+
+export const endLottery = async (address) => {
+    sendTransaction(address, lotteryContract.methods.endLottery().encodeABI());
+}
+
+export const startLottery = async (address, amountOfDays, ticketPrice) => {
+    sendTransaction(address, lotteryContract.methods.startLottery(amountOfDays, ticketPrice).encodeABI());
+}
+
+export const buyTicket = async (address) => {
+    sendTransaction(address, lotteryContract.methods.buyTicket().encodeABI());
+}
+
+export const withdrawFees = async (address) => {
+    sendTransaction(address, lotteryContract.methods.withdrawFees().encodeABI());
+}
+
+export const changeTicketPrice = async (address, ticketPrice) => {
+    sendTransaction(address, lotteryContract.methods.changeTicketPrice(ticketPrice).encodeABI());
+}
+
+export const cancelLottery = async (address) => {
+    sendTransaction(address, lotteryContract.methods.cancelLottery().encodeABI());
+}
+
+export const retrySubmissionOfFounds = async (address) => {
+    sendTransaction(address, lotteryContract.methods.retrySubmissionOfFounds().encodeABI());
+}
+
+export const sendTransaction = async (address, dataMethod) => {
+
+    //input error handling
+    if (!window.ethereum || address === null) {
+      return {
+        status:
+          "💡 Connect your Metamask wallet to update the message on the blockchain.",
+      };
+    }
+  
+    //set up transaction parameters
+    const transactionParameters = {
+      to: contractAddress, // Required except during contract publications.
+      from: address, // must match user's active address.
+      data: dataMethod,
+    };
+  
+    //sign the transaction
+    try {
+      const txHash = await window.ethereum.request({
+        method: "eth_sendTransaction",
+        params: [transactionParameters],
+      });
+      return {
+        status: (
+          <span>
+            ✅{" "}
+            <a target="_blank" href={`https://goerli.etherscan.io/tx/${txHash}`}>
+              View the status of your transaction on Etherscan!
+            </a>
+            <br />
+            ℹ️ Once the transaction is verified by the network, the message will
+            be updated automatically.
+          </span>
+        ),
+      };
+    } catch (error) {
+      return {
+        status: "😥 " + error.message,
+      };
+    }
+  };

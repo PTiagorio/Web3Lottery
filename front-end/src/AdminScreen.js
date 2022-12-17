@@ -3,10 +3,13 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import { useEffect, useState } from "react";
 import {
-  lotteryContract,
   connectWallet,
-  updateMessage,
-  loadCurrentLottery,
+  startLottery,
+  withdrawFees,
+  changeTicketPrice,
+  cancelLottery,
+  retrySubmissionOfFounds,
+
   getCurrentWalletConnected,
 } from "./util/interact.js";
 
@@ -73,12 +76,26 @@ const AdminScreen = () => {
   const onUpdatePressed = async () => { //TODO: implement
     
   };
+  
+  const onStartLotteryPressed = async () => {
+    await startLottery(walletAddress, numberOfDays, newPrice);
+  };
 
-  const Modal = () => (
-    <Popup trigger={<button className="button"> Open Modal </button>} modal>
-      <span> Modal content </span>
-    </Popup>
-  );
+  const onWithdrawFeesPressed = async () => {
+    await withdrawFees(walletAddress);
+  };
+
+  const onChangeTicketPricePressed = async () => {
+    await changeTicketPrice(walletAddress, newPrice);
+  };
+
+  const onCancelLotteryPressed = async () => {
+    await cancelLottery(walletAddress);
+  };
+
+  const onRetrySubmissionOfFoundsPressed = async () => {
+    await retrySubmissionOfFounds(walletAddress);
+  };
 
   //the UI of our component
   return (
@@ -99,7 +116,7 @@ const AdminScreen = () => {
 
       <div className="block">
         <Popup trigger={
-          <button id="startLottery" className="button" onClick={onUpdatePressed}>
+          <button id="startLottery" className="button">
             Start New Lottery </button>
         } modal>
           <div className="middleDiv">
@@ -121,20 +138,20 @@ const AdminScreen = () => {
             />
           </div>
           <div className="middleDiv">
-            <button id="startLottery" className="itemInTheMiddle" onClick={onUpdatePressed}>
+            <button id="startLottery" className="itemInTheMiddle" onClick={onStartLotteryPressed}>
               Start Lottery
             </button>
           </div>
         </Popup>
 
-        <button id="withdrawFees" className="buttonRight" onClick={onUpdatePressed}>
+        <button id="withdrawFees" className="buttonRight" onClick={onWithdrawFeesPressed}>
           Withdraw Fees
         </button>
       </div>
 
       <div className="middleDiv">
         <Popup trigger={
-          <button id="changeTicketPrice" className="buttonSalmon itemInTheMiddle" onClick={onUpdatePressed}>
+          <button id="changeTicketPrice" className="buttonSalmon itemInTheMiddle">
             Change Ticket Price 
           </button>
         } modal>
@@ -148,7 +165,7 @@ const AdminScreen = () => {
               />
             </div>
             <div className="middleDiv">
-              <button id="updatePrice" className="itemInTheMiddle" onClick={onUpdatePressed}>
+              <button id="updatePrice" className="itemInTheMiddle" onClick={onChangeTicketPricePressed}>
                 Update Price
               </button>
             </div>
@@ -156,11 +173,11 @@ const AdminScreen = () => {
       </div>
 
       <div>
-        <button id="cancelLottery" className="buttonRed" onClick={onUpdatePressed}>
+        <button id="cancelLottery" className="buttonRed" onClick={onCancelLotteryPressed}>
             Cancel Lottery
         </button>
 
-        <button id="retrySubmissionOfFounds" className="buttonRight buttonRed" onClick={onUpdatePressed}>
+        <button id="retrySubmissionOfFounds" className="buttonRight buttonRed" onClick={onRetrySubmissionOfFoundsPressed}>
             Retry Submission of Founds
         </button>
       </div>

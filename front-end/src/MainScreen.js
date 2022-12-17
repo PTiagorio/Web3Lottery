@@ -6,6 +6,8 @@ import {
   connectWallet,
   getCurrentWalletConnected,
   loadCurrentLottery,
+  buyTicket,
+  endLottery,
 } from "./util/interact.js";
 
 import lottoLogo from "./lottoLogo.svg";
@@ -131,12 +133,14 @@ const LotteryScreen = () => {
     setWallet(walletResponse.address);
   };
 
-  const onBuyTicketPressed = async () => { //TODO: implement
-    
+  const onBuyTicketPressed = async () => {
+    await buyTicket(walletAddress);
+    fetchLottery();
   };
 
-  const onBuyEndLotteryPressed = async () => { //TODO: implement
-    
+  const onBuyEndLotteryPressed = async () => {
+    await endLottery(walletAddress);
+    fetchLottery();
   };
 
   //the UI of our component
@@ -181,11 +185,11 @@ const LotteryScreen = () => {
       </div>
 
       <div>
-        <button id="buyTicket" onClick={onUpdatePressed}>
+        <button id="buyTicket" onClick={onBuyTicketPressed}>
           Buy Ticket
         </button>
 
-        <button id="endLottery" className="buttonRight" onClick={onUpdatePressed}>
+        <button id="endLottery" className="buttonRight" onClick={onBuyEndLotteryPressed}>
           End Lottery
         </button>
       </div>
